@@ -1,0 +1,509 @@
+openapi: 3.0.0
+servers: 
+  - url: 'http://localhost:8090/api'
+  - url: 'https://journalapi-313909.ew.r.appspot.com/api'
+info:
+  description: API that collects resources from different newspapers.
+  version: 2.0.1
+  title: Journal API
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: authors
+    description: Authors
+  - name: journals
+    description: Journals
+  - name: publications
+    description: Publications
+paths:
+  /authors:
+    get:
+      tags:
+        - authors
+      summary: Get all authors
+      operationId: getAuthors
+      parameters:
+        - in: query
+          name: name
+          description: Name to filter
+          schema:
+            type: string
+        - in: query
+          name: order
+          description: Order results by name
+          required: false
+          schema:
+            type: string
+            enum: 
+              - 'name'
+              - '-name'
+        
+        - name: limit
+          in: query
+          description:  Limit the maximum number of results
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - name: offset
+          in: query
+          description: Offset of the results
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+        '400':
+          description: bad request
+    post:
+      tags:
+        - authors
+      summary: Adds an author
+      operationId: addAuthor
+      description: Adds an author to the system
+      responses:
+        '201':
+          description: item created
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+        description: Author to add
+    put:
+      tags:
+        - authors
+      summary: Update an author
+      description: Update an author
+      operationId: updateAuthor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+        description: Author to update
+      responses:
+        '204':
+          description: Author updated
+        '400':
+          description: Bad request
+        '404':
+          description: Author not found
+  '/authors/{id}':
+    get:
+      tags:
+        - authors
+      summary: Returns an author
+      operationId: getAuthorsbyId
+      parameters:
+        - name: id
+          in: path
+          description: Id of the author
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          description: bad request
+    delete:
+      tags: 
+        - authors
+      summary: Deletes author
+      description: Delete author
+      operationId: deleteAuthor
+      parameters:
+        - name: id
+          in: path
+          description: Id of the author
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Author deleted
+        '404':
+          description: Author not found
+  /journals:
+    get:
+      tags:
+        - journals
+      summary: Get all journals
+      operationId: getJournals
+      parameters:
+        - in: query
+          name: order
+          description: Order results by name
+          required: false
+          schema:
+            type: string
+            enum: 
+              - 'name'
+              - '-name'
+        - name: noPublication
+          in: query
+          description: Show journals with or without publications
+          schema:
+            type: boolean
+        - in: query
+          name: name
+          description: Name to filter
+          schema:
+            type: string
+        - in: query
+          name: limit
+          description: Limit the maximum number of results
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - name: offset
+          in: query
+          description: Offset of the results
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+      responses:
+        '200':
+          description: Search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Journal'
+        '400':
+          description: bad request
+    put:
+      tags:
+        - journals
+      summary: Update a journal
+      description: Update a journal
+      operationId: updateJournal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Journal'
+        description: Journal to update
+      responses:
+        '204':
+          description: Author updated
+        '400':
+          description: Bad request
+        '404':
+          description: Author not found
+    post:
+      tags:
+        - journals
+      summary: Adds a journal
+      operationId: addJournal
+      description: Adds a journal to the system
+      responses:
+        '201':
+          description: item created
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Journal'
+        description: Journal to add
+  '/journals/{id}':
+    get:
+      tags:
+        - journals
+      summary: Get a journals
+      operationId: getJournalsbyId
+      parameters:
+        - name: id
+          in: path
+          description: Id of the journal
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Journal'
+        '400':
+          description: bad request
+    delete:
+      tags: 
+        - journals
+      summary: Deletes journal
+      description: Delete journal
+      operationId: deleteJournal
+      parameters:
+        - name: id
+          in: path
+          description: Id of the journal
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Journal deleted
+        '404':
+          description: Journal not found
+  '/journals/{journalId}/{publicationId}':
+    delete:
+      tags:
+        - journals
+      summary: Delete publication a from journal
+      description: Delete publication from journal
+      operationId: deletePublicationFromJournal
+      parameters:
+        - name: journalId
+          in: path
+          description: Id of the journal
+          required: true
+          schema:
+            type: string
+        - name: publicationId
+          in: path
+          description: Id of the publication
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: publication deleted from journal
+        '404':
+          description: Journal or publication not found
+  /publications:
+    get:
+      tags:
+        - publications
+      summary: Get all publications
+      operationId: getPublications
+      parameters:
+        - in: query
+          name: title
+          description: title to filter
+          schema:
+            type: string
+        - in: query
+          name: order
+          description: Order results by name
+          required: false
+          schema:
+            type: string
+            enum: 
+              - 'title'
+              - '-title'
+        - in: query
+          name: limit
+          description: Limit the maximum number of results
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - name: offset
+          in: query
+          description: Offset of the results
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - name: noAuthor
+          in: query
+          description: Show publications with or without authors
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Publication'
+        '400':
+          description: bad request
+    post:
+      tags:
+        - publications
+      summary: Adds a publication
+      operationId: addPublication
+      description: Adds a publication to the system
+      responses:
+        '201':
+          description: item created
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Publication'
+        description: Publication to add
+    put:
+      tags:
+        - publications
+      summary: Update a publication
+      description: Update a publication
+      operationId: updatePublication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Publication'
+        description: Publication to update
+      responses:
+        '204':
+          description: Author updated
+        '400':
+          description: Bad request
+        '404':
+          description: Author not found
+  '/publications/{id}':
+    get:
+      tags:
+        - publications
+      summary: Get publications by id
+      operationId: getPublicationsbyId
+      parameters:
+        - name: id
+          in: path
+          description: Id of the journal
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Publication'
+        '400':
+          description: bad request
+    delete:
+      tags: 
+        - publications
+      summary: Deletes publication
+      description: Delete publication
+      operationId: deletePublication
+      parameters:
+        - name: id
+          in: path
+          description: Id of the publication
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Publication deleted
+        '404':
+          description: Publication not found
+components:
+  schemas:
+    Author:
+      type: object
+      required: 
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        first_name:
+          type: string
+        birth_date:
+          type: string
+      example: 
+        id: a1
+        name: Alfredo
+        first_name: Relaño Estape
+        birth_date: '13 de febrero de 1951'
+        
+    Journal:
+      type: object
+      required: 
+        - name
+      properties:
+        id:
+          type: string
+        director:
+          type: string
+        first_pub:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+        publications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Publication'
+      example: 
+        id: j1
+        director: Javier Moreno Barber
+        first_pub: '4 de mayo de 1976'
+        name: El País
+        owner: Grupo PRISA
+        publications: 
+          - 'Atleti: partido a partido, susto a susto...'
+          - El Banco de España advierte de los efectos persistentes de la crisis y pide un paquete integral de reformas
+    Publication:
+      type: object
+      required: 
+        - title
+      properties:
+        id:
+          type: string
+        authors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+        title:
+          type: string
+        date:
+          type: string
+        genre:
+          type: string
+      example: 
+        id: p1
+        authors: 
+          - Alfredo
+          - Jose Andres
+        title: 'Atleti: partido a partido, susto a susto...'
+        date: '13 de Mayo de 2021'
+        genre: 'Deporte'
